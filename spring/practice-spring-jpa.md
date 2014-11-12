@@ -320,5 +320,5 @@ For this to really work the project **must** inherit from `spring-boot-starter-p
 
 ```
 Main-Class: org.springframework.boot.loader.JarLauncher
-Start-Class: cebence.practice.spring.jpa.Application
+Start-Class: practice.spring.jpa.Application
 ```
