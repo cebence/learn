@@ -316,8 +316,7 @@ Person[id=1, firstName='John', lastName='Doe']
 Person[id=2, firstName='Jane', lastName='Doe']
 ```
 
-For this to really work the project **must** inherit from `spring-boot-starter-parent` (that we specified at the beginning). The [POM in question](http://central.maven.org/maven2/org/springframework/boot/spring-boot-starter-parent/1.1.8.RELEASE/spring-boot-starter-parent-1.1.8.RELEASE.pom) integrates Spring Boot into Maven. Spring Boot will add itself to the `MANIFEST` as the `Main-Class`, and our application class as `Start-Class`, e.g.:
-
+> For this to really work the project **must** inherit from `spring-boot-starter-parent` (that we specified at the beginning). The [POM in question](http://central.maven.org/maven2/org/springframework/boot/spring-boot-starter-parent/1.1.8.RELEASE/spring-boot-starter-parent-1.1.8.RELEASE.pom) integrates Spring Boot into Maven. Spring Boot will add itself to the `MANIFEST` as the `Main-Class`, and our application class as `Start-Class`, e.g.:
 ```
 Main-Class: org.springframework.boot.loader.JarLauncher
 Start-Class: practice.spring.jpa.Application
