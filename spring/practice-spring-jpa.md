@@ -46,9 +46,6 @@ Start by creating a new (simple) Maven project in STS:
 
 Note that we declared our project as a *child* project of `spring-boot-starter-parent` although we are not creating a hierarchy of projects.
 
-> TODO EXPLAIN BETTER: `spring-boot-starter-parent` dependency is **required** in order to successfully build the project with Maven. The POM in question integrates Spring Boot into Maven, and makes the generated JAR truly runnable.
-
-
 > In case Maven can't find Spring Boot artifacts on default Maven Central repository you will need to adding these repositories into `pom.xml`:
 ```xml
 <repositories>
@@ -65,7 +62,7 @@ Note that we declared our project as a *child* project of `spring-boot-starter-p
 </pluginRepositories>
 ```
 
-For Maven needs help from Spring Boot to create a runnable JAR so we need to add Spring Boot Maven plug-in:
+Maven needs help from Spring Boot to create a runnable JAR so we need to add Spring Boot Maven plug-in:
 
 1. Open the `pom.xml` file.
 
@@ -319,9 +316,7 @@ Person[id=1, firstName='John', lastName='Doe']
 Person[id=2, firstName='Jane', lastName='Doe']
 ```
 
-For this to really work the project **must** inherit from `spring-boot-starter-parent` (that we specified at the beginning).  
-Spring Boot will add itself to the `MANIFEST` as the `Main-Class`,
-and our application class as `Start-Class`, e.g.:
+For this to really work the project **must** inherit from `spring-boot-starter-parent` (that we specified at the beginning). The [POM in question](http://central.maven.org/maven2/org/springframework/boot/spring-boot-starter-parent/1.1.8.RELEASE/spring-boot-starter-parent-1.1.8.RELEASE.pom) integrates Spring Boot into Maven. Spring Boot will add itself to the `MANIFEST` as the `Main-Class`, and our application class as `Start-Class`, e.g.:
 
 ```
 Main-Class: org.springframework.boot.loader.JarLauncher
