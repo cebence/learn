@@ -321,3 +321,91 @@ Person[id=2, firstName='Jane', lastName='Doe']
 Main-Class: org.springframework.boot.loader.JarLauncher
 Start-Class: practice.spring.jpa.Application
 ```
+
+## Appendix: Connect to a production database
+
+It all looks very nice but where's *the real database*, i.e. how to connect to a production database running on a remote *MySQL* server?
+
+> We will simulate a production server with the *MySQL* server that comes with the [XAMPP](http://portableapps.com/apps/development/xampp) installation. The server is configured to accept connections from a user named `root` **without** the password (i.e. empty password).
+
+First, we need to tell *Spring Data* which database to connect to. This can be done through (Java) code, but it is much better to do it with a configuration file (no need to recompile everything when we change the database).
+
+### Replace the JDBC driver
+We need to replace the *H2* JDBC driver with the *MySQL* one. Open the `pom.xml` and change the H2 dependency into this one:
+
+```xml
+<dependency>
+  <groupId>mysql</groupId>
+  <artifactId>mysql-connector-java</artifactId>
+  <version>5.1.34</version>
+</dependency>
+```
+
+### Configure the DataSource
+
+*Spring Data* will look for any configuration customizations in the `application.properties` file.
+
+1. From the menu `File` > `New` > `Folder` and input:
+
+  **Folder name:** `src/main/resources`
+
+2. From the menu `File` > `New` > `File` and input:
+
+  **File name:** `application.properties`
+
+3. Paste in the following:
+```
+  spring.datasource.url=jdbc:mysql://localhost/test
+  spring.datasource.username=root
+  spring.datasource.password=
+  spring.datasource.driverClassName=com.mysql.jdbc.Driver
+```
+
+> Note that we are using the `test` database on our development *MySQL* server. To connect to a production database please specify the correct connection URL.
+
+### Initialize the database schema
+
+When an in-memory *H2* database was used *Spring Data* detected it, automatically configured it and created a database schema, i.e. created the `CUSTOMER` database table. Since we are *providing* the database we must create the necessary tables.
+
+Connect to the *MySQL* server and issue the following SQL statement:
+
+```sql
+create table CUSTOMER (
+  ID int primary key auto_increment,
+  FIRST_NAME varchar(100),
+  LAST_NAME varchar(100)
+)
+```
+
+Note that [camel-cased](http://en.wikipedia.org/wiki/CamelCase) property names need to be modified so the words are separated with the underscore, i.e. `firstName` became `FIRST_NAME`. This naming policy is a part of the [JPA](http://en.wikipedia.org/wiki/Java_Persistence_API) standard.
+
+### That's it!
+
+Those are all the changes required to switch to another database.
+
+Now, just rebuild the JAR and run it:
+
+```
+  mvn clean package
+  java -jar target/practice-spring-jpa-1.0.jar
+```
+
+The output should be the same as before, and when you check in the database:
+
+```sql
+select * from CUSTOMER
+```
+
+you should see this:
+
+```
++----+------------+-----------+
+| id | first_name | last_name |
++----+------------+-----------+
+|  1 | John       | Doe       |
+|  2 | Jone       | Doe       |
+|  3 | Neil       | O'Brian   |
+|  4 | Brian      | O'Neil    |
+|  5 | Chloe      | McCane    |
++----+------------+-----------+
+```
