@@ -223,8 +223,8 @@ But it's easier and faster to do it the former way, especially since you can sea
       // Save a few persons in the database.
       repository.save(new Person("John", "Doe"));
       repository.save(new Person("Jane", "Doe"));
-      repository.save(new Person("Niel", "O'Brian"));
-      repository.save(new Person("Brian", "O'Niel"));
+      repository.save(new Person("Neil", "O'Brian"));
+      repository.save(new Person("Brian", "O'Neil"));
       repository.save(new Person("Chloe", "McCane"));
 
       // Fetch everyone.
@@ -302,8 +302,8 @@ You should see something like this:
 -------------------------------
 Person[id=1, firstName='John', lastName='Doe']
 Person[id=2, firstName='Jane', lastName='Doe']
-Person[id=3, firstName='Niel', lastName='O'Brian']
-Person[id=4, firstName='Brian', lastName='O'Niel']
+Person[id=3, firstName='Neil', lastName='O'Brian']
+Person[id=4, firstName='Brian', lastName='O'Neil']
 Person[id=5, firstName='Chloe', lastName='McCane']
 
 Person found with findOne(1L):
