@@ -283,3 +283,199 @@ Finally, run it with `Run` > `Run As` > `2 Spring Boot App`.
 java -jar target/practice-spring-jparest-1.0.jar
 mvn spring-boot:run
 ```
+
+### Test the application
+
+To test the application we need to use an additional tool that can send custom HTTP requests, and the one we will use is a *Mozilla Firefox* add-on  called [RESTClient](https://addons.mozilla.org/en-US/firefox/addon/restclient/).
+
+> Similar extension can be found for *Google Chrome*, and those comfortable in the command-line can use `curl` (a Unix/Linux tool).
+
+Open the *RESTClient* via `Tools` > `RESTClient`, input `http://localhost:8080` into its URL field, leave the HTTP method set to `GET`, and click `Send`. You should see a response like this (under *Response Body (Raw)* tab):
+
+```json
+{
+  "_links" : {
+    "people" : {
+      "href" : "http://localhost:8080/people{?page,size,sort}",
+      "templated" : true
+    }
+  }
+}
+```
+
+> **Note:**  *Spring Data REST* uses the [HAL format](http://stateless.co/hal_specification.html) for JSON output to supply additional information on the requested resources, like links adjacent to the data that is served.
+
+As a response to our visit to the application root resource (`/`) we gòt a directory of available resources. There is a **people** link located at `http://localhost:8080/people`, and it has some options such as `?page`, `?size`, and `?sort`.
+
+When we continue to `http://localhost:8080/people` we get an "empty" response - no actual data, just "*number of people = 0*":
+
+```json
+{
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/people{?page,size,sort}",
+      "templated" : true
+    },
+    "search" : {
+      "href" : "http://localhost:8080/people/search"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 0,
+    "totalPages" : 0,
+    "number" : 0
+  }
+}
+```
+
+So let's create some people!
+
+Set the following values into *RESTClient*:
+
+**Method:** `POST`  
+**URL:** `http://localhost:8080/people`  
+**Body:** `{ "firstName" : "Frodo", "lastName" : "Baggins" }`
+
+We also need to set an HTTP request header so the application knows the payload (i.e. body) contains a JSON object. From the *RESTClient* menu `Headers` > `Custom Header`:
+
+**Name:** `Content-Type`  
+**Value:** `application/json`
+
+Check the `Save to favorite` check-box (this is so we don't have to type it in all the time since it's a common request header in a REST application), and click `Okay`.
+
+When you send out the request the application responds with a simple success & location under the *Response Headers* tab:
+
+```
+Status Code: 201 Created
+Content-Length: 0
+Location: http://localhost:8080/people/1
+```
+
+The operation was a success (status code `2xx`), there is no data in the response (content length is `0`), but we did get something useful - the **location** of our newly created person.
+
+Go ahead and request it - `GET http://localhost:8080/people/1` and clear out headers and body:
+
+```json
+{
+  "firstName" : "Frodo",
+  "lastName" : "Baggins",
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/people/1"
+    }
+  }
+}
+```
+
+If we could check the database - which we can't at the moment because it's an in-memory H2 database (see [how to switch to MySQL](practice-spring-jpa.md#appendix-connect-to-a-production-database)) - we would see a `(1, "Frodo", "Baggins")` record in the `PERSON` table.
+
+If we repeat the `GET http://localhost:8080/people` request we would get this response:
+
+```json
+{
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8080/people{?page,size,sort}",
+      "templated" : true
+    },
+    "search" : {
+      "href" : "http://localhost:8080/people/search"
+    }
+  },
+  "_embedded" : {
+    "people" : [ {
+      "firstName" : "Frodo",
+      "lastName" : "Baggins",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/people/1"
+        }
+      }
+    } ]
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 1,
+    "totalPages" : 1,
+    "number" : 0
+  }
+}
+```
+
+The **persons** object contains a list with Frodo. Notice how it includes a **self** link. *Spring Data REST* also uses [Evo Inflector](http://www.atteo.org/2011/12/12/Evo-Inflector.html) to pluralize the name of the entity for groupings.
+
+Let's create some more people just like we did earlier -  `POST` method, `Content-Type` header, and these bodies (one at a time):
+
+```json
+{ "firstName" : "Bilbo", "lastName" : "Baggins" }
+{ "firstName" : "Sam", "lastName" : "Gamgee" }
+{ "firstName" : "Merry", "lastName" : "Brandybuck" }
+{ "firstName" : "Pippin", "lastName" : "Tuk" }
+```
+
+If we repeat the `GET http://localhost:8080/people` request this time we would get a list of five people.
+
+We have made a mistake with one of the names, Pippin's last name should be "Took", but how do we fix it?
+
+We should make a `PUT` request to Pippin's URL (`http://localhost:8080/people/5`) with the `Content-Type` header and this body:
+
+```json
+{ "firstName" : "Pippin", "lastName" : "Took" }
+```
+
+> Note that we must provide the full object, i.e. we can't just send out `lastName` because `PUT` is a *replace* command, it's not *update these fields*.
+
+To modify only a part of an object we must make a `PATCH` request to its URL with the fields to be modified. Let's give Pippin his real first name by sending a request `PATCH http://localhost:8080/people/5` (it's not in the list of methods, just type it in):
+
+```json
+{ "firstName" : "Peregrin" }
+```
+It worked!
+
+How about deleting it? Send a `DELETE` request to `http://localhost:8080/people/5` (no headers, no body) and the response is `204` (OK) - Pippin is gone. If we try to `GET http://localhost:8080/people/5` we get the (in)famous response `404` (not found).
+
+Let's check what does the **search** URL do. Do a `GET http://localhost:8080/people/search` request and...
+
+```json
+{
+  "_links" : {
+    "findByLastName" : {
+      "href" : "http://localhost:8080/people/search/findByLastName{?name}",
+      "templated" : true
+    }
+  }
+}
+```
+
+OK, let's find all the people named "Baggins" - `GET http://localhost:8080/people/search/findByLastName?name=Baggins` and the response is:
+
+```json
+{
+  "_embedded" : {
+    "people" : [ {
+      "firstName" : "Frodo",
+      "lastName" : "Baggins",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/people/1"
+        }
+      }
+    },{
+      "firstName" : "Bilbo",
+      "lastName" : "Baggins",
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8080/people/2"
+        }
+      }
+    } ]
+  }
+}
+```
+
+> So, if we were to add a `findByFirstName` method to the `PersonRepository` interface (and recompile!) we would instantly be able to search people on first name too? Try it out!
+
+### Summary
+
+Congratulations! You have just created an application with a hypermedia-based RESTful front end and a JPA-based back end.
