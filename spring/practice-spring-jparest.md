@@ -65,7 +65,7 @@ Note that we declared our project as a *child* project of `spring-boot-starter-p
 </pluginRepositories>
 ```
 
-For Maven needs help from Spring Boot to create a runnable JAR so we need to add Spring Boot Maven plug-in:
+Maven needs help from Spring Boot to create a runnable JAR so we need to add Spring Boot Maven plug-in:
 
 1. Open the `pom.xml` file.
 
