@@ -14,7 +14,7 @@ I don't know about you, but I hate it when a guide/tutorial/article I am followi
 - Learn Java programming
   - [Spring REST](spring/practice-spring-rest.md)
   - [Spring Data JPA](spring/practice-spring-jpa.md)
-  - [Spring Data REST](spring/practice-spring-jpa.md)
+  - [Spring Data REST](spring/practice-spring-jparest.md)
 
 - Learn relational databases and SQL
 
