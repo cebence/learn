@@ -8,6 +8,7 @@ I don't know about you, but I hate it when a guide/tutorial/article I am followi
 
 - General subjects
   - Writing documents properly (using styles)
+    - [Markdown Guide (by GitHub)](https://guides.github.com/features/mastering-markdown/)
   - Internationalization and Unicode
   - (Mis)Perception of Time
 
